@@ -24,17 +24,12 @@ public class LineStations {
             throw new StationDuplicateException();
         }
 
-        for (int i = 0; i < lineStations.size(); i++) {
-            LineStation findLineStation = lineStations.get(i);
-            updatePreStationByAppend(findLineStation, lineStation);
-        }
-        lineStations.add(lineStation);
-    }
+        lineStations.stream()
+                .filter(it -> it.getPreStationId() == lineStation.getStationId())
+                .findAny()
+                .ifPresent(it -> it.updatePreStation(lineStation.getStationId()));
 
-    private void updatePreStationByAppend(LineStation findLineStation, LineStation lineStation) {
-        if (findLineStation != null && findLineStation.getPreStationId() == lineStation.getPreStationId()) {
-            findLineStation.updatePreStation(lineStation.getStationId());
-        }
+        lineStations.add(lineStation);
     }
 
     public void removeStation(Long stationId) {
@@ -43,17 +38,12 @@ public class LineStations {
                 .findFirst()
                 .orElseThrow(StationNotFoundException::new);
 
-        for (int i = 0; i < lineStations.size(); i++) {
-            LineStation findLineStation = lineStations.get(i);
-            updatePreStationByRemove(findLineStation, lineStation);
-        }
-        lineStations.remove(lineStation);
-    }
+        lineStations.stream()
+                .filter(it -> it.getPreStationId() == lineStation.getStationId())
+                .findAny()
+                .ifPresent(it -> it.updatePreStation(lineStation.getPreStationId()));
 
-    private void updatePreStationByRemove(LineStation findLineStation, LineStation lineStation) {
-        if (findLineStation != null && findLineStation.getPreStationId() == lineStation.getStationId()) {
-            findLineStation.updatePreStation(lineStation.getPreStationId());
-        }
+        lineStations.remove(lineStation);
     }
 
     public List<LineStation> getOrderLineStations() {
